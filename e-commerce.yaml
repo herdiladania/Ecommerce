@@ -1,0 +1,823 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: E-Cpmmerce API
+  description: Design API for E-Commerce APP by Group 7
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/Grioup7/E-Commerce_API/1.0.0
+    
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@alta.id
+                password:
+                  type: string
+                  example: pass12345
+      responses:
+        '200':
+          description: login succes
+          content:
+            application.json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                          name:
+                            type: string
+                          email:
+                            type: string 
+                          token:
+                            type: string
+                  message:
+                    type: string
+                example:
+                  data:
+                    name: MyName
+                    email: MyEmail@gmail.com
+                    token: 12344567890qwertyuiop
+                  message: login successfully
+                      
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /register:
+    post:
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersSchema'
+      responses:
+        '200':
+          description: register user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Jhonny
+                      hp:
+                        type: string
+                        example: "0812345678"
+                      email:
+                        type: string
+                        example: Jhonnygmail.com
+                      
+                  message:
+                    type: string
+                    example: successfully registered user
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  
+    
+  /users:
+    get:
+      tags:
+        - Users
+      responses:
+        '200':
+          description: get user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Jhonny
+                      email:
+                        type: string
+                        example: Jhonnygmail.com
+                      image:
+                        type: string 
+                        example : image1.jpg
+                  message:
+                    type: string
+                    example: successfully get user profile
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    put:
+      tags:
+        - Users
+      security:
+        - jwt_auth: []
+      
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UsersUpdateSchema'
+      responses:
+      
+        '200':
+          description: register user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Jhonny
+                      hp:
+                        type: string
+                        example: "0812345678"
+                      email:
+                        type: string
+                        example: Jhonnygmail.com
+                      address:
+                        type: string
+                        example: Jl. Merdeka 17, Jakarta
+                      password:
+                        type: string
+                        example: qwertyuiop1223
+                  message:
+                    type: string
+                    example: successfully updated user
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    delete:
+      tags:
+        - Users
+      security:
+        - jwt_auth: []
+      
+      responses:
+        '200':
+          description: register user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: successfully deleted user
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /products:
+    post:
+      tags:
+        - Products
+      security:
+        - jwt_auth: []
+      
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductSchema'
+                
+      responses:
+        '200':
+          description: add new product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id : 
+                        type: integer
+                        example: 1
+                      name: 
+                        type: string
+                        example: Mouse Gaming
+                      price:
+                        type: number
+                        example: 500000
+                      qty: 
+                        type: integer
+                        example: 10
+                      description:
+                        type: string
+                        example: Mouse gaming murah
+                      image:
+                        type: string
+                        example: imagepoduct1.jpg
+                  message:
+                    type: string
+                    example: successfully add new product
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    get:
+      tags:
+        - Products
+      responses:
+        '200':
+          description: get all products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfProductSchema'
+                
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      responses:
+        '200':
+          description: get products by id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: 
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 5
+                      name:
+                        type: string
+                        example: Lenovo Rx25
+                      price:
+                        type: integer
+                        example: 25000
+                      qty:
+                        type: integer
+                        example: 20
+                      description:
+                        type: string
+                      image:
+                        type: string
+                  message: 
+                    type: string
+                    example: successfully get product by id
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    put:
+      tags:
+        - Products
+      security:
+        - jwt_auth: []
+      
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductSchema'
+      responses:
+        '200':
+          description: update product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id : 
+                        type: integer
+                        example: 1
+                      name: 
+                        type: string
+                        example: Mouse Gaming
+                      price:
+                        type: number
+                        example: 650000
+                      qty: 
+                        type: integer
+                        example: 20
+                      description:
+                        type: string
+                        example: Mouse gaming murah
+                      image:
+                        type: string
+                        example: imagepoduct1.jpg
+                  message:
+                    type: string
+                    example: successfully updated product
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    delete:
+      tags:
+        - Products
+      security:
+        - jwt_auth: []
+      
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      responses:
+        '200':
+          description: delete product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: successfully deletede product
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /cart:
+    
+    post:
+      tags:
+        - Cart
+      security:
+        - jwt_auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartSchema'
+      responses:
+        '200':
+          description: add product to cart add
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      product_id : 
+                        type: integer
+                        example: 1
+                      qty: 
+                        type: integer
+                        example: 2
+                  message:
+                    type: string
+                    example: successfully add to cart
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    get:
+      tags:
+        - Cart
+      security:
+        - jwt_auth: []
+      responses:
+        '200':
+          description: get all cart
+          content:
+            application/json:
+              schema:
+               type: object
+               properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                message:
+                  type: string
+              example:
+                data:
+                  - id : 1
+                    qty : 2
+                    total_price : 500000
+                    product:
+                      product_id : 29
+                      product_name : asus rog
+                      product_image : product29.jpg
+                  - id : 2
+                    qty : 5
+                    total_price : 990000
+                    product:
+                      product_id : 31
+                      product_name : tas laptop
+                      product_image : produc31.jpg
+                message : successfully get all cart
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /cart/{id}:
+    put:
+      tags:
+        - Cart
+      security:
+        - jwt_auth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                qty:
+                  type: integer
+                  example: 20
+      responses:
+        '200':
+          description: update cart 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      product_id : 
+                        type: integer
+                        example: 1
+                      qty: 
+                        type: integer
+                        example: 2
+                  message:
+                    type: string
+                    example: successfully updated cart
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    delete:
+      tags:
+        - Cart
+      security:
+        - jwt_auth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      responses:
+        '200':
+          description: delet cart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: successfully delete cart
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /order:
+    post:
+      tags:
+        - Order
+      security:
+        - jwt_auth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderSchema'
+      responses:
+        '200':
+          description: add order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      product_id : 
+                        type: integer
+                        example: 1
+                      qty: 
+                        type: integer
+                        example: 2
+                  message:
+                    type: string
+                    example: successfully add order
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+    get:
+      tags:
+        - Order
+      security:
+        - jwt_auth: []
+      responses:
+        '200':
+          description: get all cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfCartSchema'
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+  /order/{id}:
+    put:
+      tags:
+        - Order
+      security:
+        - jwt_auth: []
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: number
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: cancel
+      responses:
+        '200':
+          description: update order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: cancel
+                  message:
+                    type: string
+                    example: successfully updated order
+        '400':
+          $ref: '#/components/responses/Response400'
+        '500':
+          $ref: '#/components/responses/Response500'
+components:
+  securitySchemes:
+    jwt_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "used JWT token for Auth"
+  responses:
+    Response400:
+      description: bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Bad Request
+    Response500:
+      description: server error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: server error
+  schemas:
+    UsersSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Jhonny
+        hp:
+          type: number
+          example : 081234567897
+        email:
+          type: string
+          example: user@alta.id
+        address:
+          type: string
+          example: Jl. Merdeka 10, Jakarta
+        password:
+          type: string
+          example: qwert54321
+    UsersUpdateSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Jhony
+        hp:
+          type: number
+          example : 081234567897
+        email:
+          type: string
+          example: user@alta.id
+        address:
+          type: string
+          example: Jl. Merdeka 10, Jakarta
+        image:
+          type: string
+          example: image22.jpg
+        password:
+          type: string
+          example: qwert54321
+    ProductSchema:
+      type: object
+      properties:
+            id:
+              type: integer
+              example: 5
+            name:
+              type: string
+              example: Lenovo Rx25
+            price:
+              type: integer
+              example: 25000
+            qty:
+              type: integer
+              example: 20
+            description:
+              type: string
+            image:
+              type: string
+        
+        
+    ArrayOfProductSchema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        message:
+          type: string
+      example:
+        data:
+          - id : 1
+            name : Asus Rog 
+            price : 15.000.000
+            image : product20.jpg
+          - id : 2
+            name : Lenovo X543
+            price : 15.000.000
+            image : product29.jpg
+        message: successfully get all products
+          
+          
+    CartSchema:
+      type: object
+      required:
+        - product_id
+        - qty
+      properties:
+        product_id:
+          type: integer
+          example: 15
+        qty:
+          type: number
+          example: 2
+    ArrayOfCartSchema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        message:
+          type: string
+      example:
+        data:
+          - id : 1
+            qty : 2
+            total_price : 500000
+            product:
+              product_id : 29
+              product_name : asus rog
+              product_image : product29.jpg
+          - id : 2
+            qty : 5
+            total_price : 990000
+            product:
+              product_id : 31
+              product_name : tas laptop
+              product_image : produc31.jpg
+            
+    OrderSchema:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            cart_id:
+              type: array
+              items:
+                type: integer
+                example: 23
+            address:
+              type: object
+              properties:
+                street:
+                  type: string
+                  example: "Jl. Merdeka 17"
+                city:
+                  type: string
+                  example: "Jakarta"
+                state:
+                  type: string
+                  example: "Indonesia"
+                zip:
+                  type: number
+                  example: 10101
+            Payment:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "BRI"
+                name:
+                  type: string
+                  example: "Jhonny"
+                number:
+                  type: string
+                  example: "1000-1000-1000-1000"
