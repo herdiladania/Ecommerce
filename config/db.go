@@ -1,6 +1,7 @@
 package config
 
 import (
+	user "e-commerce/features/user/data"
 	"fmt"
 
 	"log"
@@ -22,5 +23,5 @@ func InitDB(ac AppConfig) *gorm.DB {
 }
 
 func Migrate(db *gorm.DB) {
-	// automigrate
+	db.AutoMigrate(user.User{})
 }
