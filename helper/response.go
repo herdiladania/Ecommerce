@@ -7,12 +7,6 @@ import (
 
 func PrintSuccessReponse(code int, message string, data ...interface{}) (int, interface{}) {
 	resp := map[string]interface{}{}
-	// if len(data) < 2 {
-	// 	resp["data"] = data[0]
-	// } else {
-	// 	resp["data"] = data[0]
-	// 	resp["token"] = data[1].(string)
-	// }
 	switch len(data) {
 	case 1:
 		resp["data"] = data[0]
