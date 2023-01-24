@@ -50,21 +50,14 @@ func (uq *userQuery) Profile(id uint) (user.Core, error) {
 	return ToCore(res), nil
 }
 
-func (uq *userQuery) Update(id uint, updateData user.Core) (user.Core, error) {
-	userModel := CoreToData(updateData)
-	userModel.ID = id
-
-	Input := uq.db.Model(&userModel).Where("id = ?", id).Updates(userModel)
-
-	if Input.Error != nil {
-		log.Println("Get By ID query error", Input.Error.Error())
-		return user.Core{}, Input.Error
+func (uq *userQuery) Update(id uint, updatedData user.Core) (user.Core, error) {
+	cnvUpd := CoreToData(updatedData)
+	qry := uq.db.Model(&User{}).Where("id = ?", id).Updates(cnvUpd)
+	if err := qry.Error; err != nil {
+		log.Println("error update user query : ", err)
+		return updatedData, err
 	}
-	if Input.RowsAffected <= 0 {
-		return user.Core{}, errors.New("not found")
-	}
-
-	return ToCore(userModel), nil
+	return updatedData, nil
 }
 
 func (uq *userQuery) Delete(id uint) (user.Core, error) {
