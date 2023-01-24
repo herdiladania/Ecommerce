@@ -53,3 +53,15 @@ func (pd *productData) Update(productID uint, userID uint, updateProduct product
 func (pd *productData) Delete(productID uint, userID uint) error {
 	return nil
 }
+
+func (pd *productData) GetProductById(productID uint, userID uint) (product.Core, error) {
+	res := Product{}
+
+	err := pd.db.Where("id = ? AND user_id = ?", productID, userID).First(&res).Error
+	if err != nil {
+		log.Println("GetProductById query error")
+		return product.Core{}, err
+	}
+
+	return DataToCore(res), nil
+}
