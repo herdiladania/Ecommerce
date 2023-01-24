@@ -57,8 +57,8 @@ func (ph *productHandle) Update() echo.HandlerFunc {
 		token := c.Get("user")
 		var updateImage *multipart.FileHeader
 
-		postID := c.Param("id")
-		cnv, err := strconv.Atoi(postID)
+		productID := c.Param("id")
+		cnv, err := strconv.Atoi(productID)
 		if err != nil {
 			log.Println("update product param error")
 			return c.JSON(http.StatusBadRequest, "wrong product ID")
@@ -94,4 +94,27 @@ func (ph *productHandle) Update() echo.HandlerFunc {
 
 func (ph *productHandle) Delete() echo.HandlerFunc {
 	return nil
+}
+
+func (ph *productHandle) GetProductById() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		token := c.Get("user")
+		input := c.Param("id")
+		cnv, err := strconv.Atoi(input)
+		if err != nil {
+			log.Println("GetProductById param error")
+			return c.JSON(http.StatusBadRequest, "wrong product id")
+		}
+
+		res, err := ph.srv.GetProductById(token, uint(cnv))
+		if err != nil {
+			log.Println("error running GetProductById service")
+			return c.JSON(http.StatusInternalServerError, helper.ErrorResponse("server problem"))
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    AddProductToResponse(res),
+			"message": "success show product detail",
+		})
+	}
 }
