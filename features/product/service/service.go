@@ -104,3 +104,17 @@ func (ps *productSrv) GetProductById(token interface{}, productID uint) (product
 	}
 	return res, nil
 }
+
+func (ps *productSrv) AllProducts() ([]product.Core, error) {
+	res, err := ps.data.AllProducts()
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "data not found"
+		} else {
+			msg = "server problem"
+		}
+		return []product.Core{}, errors.New(msg)
+	}
+	return res, nil
+}
