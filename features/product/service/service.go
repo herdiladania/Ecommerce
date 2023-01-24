@@ -47,7 +47,28 @@ func (ps *productSrv) Add(token interface{}, newProduct product.Core, image *mul
 }
 
 func (ps *productSrv) Update(token interface{}, productID uint, updateProduct product.Core, updateImage *multipart.FileHeader) (product.Core, error) {
-	return product.Core{}, nil
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		return product.Core{}, errors.New("user not found")
+	}
+
+	if updateImage != nil {
+		path, _ := helper.UploadProductImageS3(*updateImage, helper.ExtractToken(token))
+		updateProduct.Image = path
+	}
+
+	res, err := ps.data.Update(productID, uint(userID), updateProduct)
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "product data not found"
+		} else {
+			msg = "server problem"
+		}
+		return product.Core{}, errors.New(msg)
+	}
+
+	return res, nil
 }
 
 func (ps *productSrv) Delete(token interface{}, productID uint) error {
