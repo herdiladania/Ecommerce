@@ -5,20 +5,27 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/spf13/viper"
 )
 
 var (
-	JWT_KEY string = ""
+	JWT_KEY   string = ""
+	KEYID     string = ""
+	ACCESSKEY string = ""
 )
 
 type AppConfig struct {
-	DBUser string
-	DBPass string
-	DBHost string
-	DBPort int
-	DBName string
-	jwtKey string
+	DBUser    string
+	DBPass    string
+	DBHost    string
+	DBPort    int
+	DBName    string
+	jwtKey    string
+	keyid     string
+	accesskey string
 }
 
 func InitConfig() *AppConfig {
@@ -73,5 +80,16 @@ func ReadEnv() *AppConfig {
 	}
 
 	JWT_KEY = app.jwtKey
+	KEYID = app.keyid
+	ACCESSKEY = app.accesskey
 	return &app
+}
+
+func S3Config() *session.Session {
+	s3Config := &aws.Config{
+		Region:      aws.String("ap-southeast-1"),
+		Credentials: credentials.NewStaticCredentials(KEYID, ACCESSKEY, ""),
+	}
+	s3Session, _ := session.NewSession(s3Config)
+	return s3Session
 }
