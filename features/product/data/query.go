@@ -51,6 +51,21 @@ func (pd *productData) Update(productID uint, userID uint, updateProduct product
 }
 
 func (pd *productData) Delete(productID uint, userID uint) error {
+	qry := pd.db.Where("user_id = ?", userID).Delete(&Product{}, productID)
+
+	affrows := qry.RowsAffected
+
+	if affrows == 0 {
+		log.Println("no rows affected")
+		return errors.New("data not found")
+	}
+
+	err := qry.Error
+	if err != nil {
+		log.Println("delete product query error")
+		return errors.New("data not found")
+	}
+
 	return nil
 }
 

@@ -72,6 +72,21 @@ func (ps *productSrv) Update(token interface{}, productID uint, updateProduct pr
 }
 
 func (ps *productSrv) Delete(token interface{}, productID uint) error {
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		return errors.New("user not found")
+	}
+
+	err := ps.data.Delete(productID, uint(userID))
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "product not found"
+		} else {
+			msg = "server problem"
+		}
+		return errors.New(msg)
+	}
 	return nil
 }
 
