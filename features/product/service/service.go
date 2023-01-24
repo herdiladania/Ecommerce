@@ -74,3 +74,18 @@ func (ps *productSrv) Update(token interface{}, productID uint, updateProduct pr
 func (ps *productSrv) Delete(token interface{}, productID uint) error {
 	return nil
 }
+
+func (ps *productSrv) GetProductById(token interface{}, productID uint) (product.Core, error) {
+	userID := helper.ExtractToken(token)
+	res, err := ps.data.GetProductById(productID, uint(userID))
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "data not found"
+		} else {
+			msg = "server problem"
+		}
+		return product.Core{}, errors.New(msg)
+	}
+	return res, nil
+}
