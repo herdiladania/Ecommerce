@@ -2,6 +2,7 @@ package data
 
 import (
 	"e-commerce/features/product"
+	"errors"
 	"log"
 
 	"gorm.io/gorm"
@@ -34,7 +35,19 @@ func (pd *productData) Add(userID uint, newProduct product.Core) (product.Core, 
 }
 
 func (pd *productData) Update(productID uint, userID uint, updateProduct product.Core) (product.Core, error) {
-	return product.Core{}, nil
+	convert := CoreToData(updateProduct)
+	qry := pd.db.Where("id = ? AND user_id = ?", productID, userID).Updates(&convert)
+	if qry.RowsAffected <= 0 {
+		log.Println("update product query error : data not found")
+		return product.Core{}, errors.New("not found")
+	}
+
+	if err := qry.Error; err != nil {
+		log.Println("update product query error :", err.Error())
+		return product.Core{}, errors.New("not found")
+	}
+
+	return DataToCore(convert), nil
 }
 
 func (pd *productData) Delete(productID uint, userID uint) error {
