@@ -22,8 +22,8 @@ type ProductHandler interface {
 	Update() echo.HandlerFunc
 	Delete() echo.HandlerFunc
 	GetProductById() echo.HandlerFunc
-	// MyPosts() echo.HandlerFunc
-	// AllPosts() echo.HandlerFunc
+	AllProducts() echo.HandlerFunc
+	// MyProducts() echo.HandlerFunc
 }
 
 type ProductService interface {
@@ -31,8 +31,8 @@ type ProductService interface {
 	Update(token interface{}, productID uint, updateProduct Core, updateImage *multipart.FileHeader) (Core, error)
 	Delete(token interface{}, productID uint) error
 	GetProductById(token interface{}, productID uint) (Core, error)
-	// MyPosts(token interface{}) ([]MyPostsResp, error)
-	// AllPosts() ([]MyPostsResp, error)
+	AllProducts() ([]Core, error)
+	// MyProducts(token interface{}) ([]MyPostsResp, error)
 }
 
 type ProductData interface {
@@ -40,6 +40,6 @@ type ProductData interface {
 	Update(productID uint, userID uint, updateProduct Core) (Core, error)
 	Delete(productID uint, userID uint) error
 	GetProductById(productID uint, userID uint) (Core, error)
-	// MyPosts(userID uint) ([]MyPostsResp, error)
-	// AllPosts() ([]MyPostsResp, error)
+	AllProducts() ([]Core, error)
+	// MyProducts(userID uint) ([]MyPostsResp, error)
 }

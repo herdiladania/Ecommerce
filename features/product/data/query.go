@@ -80,3 +80,15 @@ func (pd *productData) GetProductById(productID uint, userID uint) (product.Core
 
 	return DataToCore(res), nil
 }
+
+func (pd *productData) AllProducts() ([]product.Core, error) {
+	allProducts := []ProductHome{}
+
+	err := pd.db.Raw("SELECT products.id, products.name, products.price,products.image FROM products WHERE products.deleted_at is NULL").Scan(&allProducts).Error
+	if err != nil {
+		log.Println("all products query error")
+		return []product.Core{}, err
+	}
+
+	return ListAllModelsToCore(allProducts), nil
+}
