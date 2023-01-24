@@ -93,18 +93,17 @@ func UploadProductImageS3(file multipart.FileHeader, userID int) (string, error)
 		return "", err
 	}
 	defer src.Close()
-	// ext := filepath.Ext(file.Filename)
 
 	cnv := strconv.Itoa(userID)
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String("ecommercegroup7"),
-		Key:    aws.String("files/post/" + cnv + "/" + file.Filename),
+		Key:    aws.String("files/product/" + cnv + "/" + file.Filename),
 		Body:   src,
 		ACL:    aws.String("public-read"),
 	})
 	if err != nil {
-		return "", errors.New("problem with upload post photo")
+		return "", errors.New("problem with upload product image")
 	}
-	path := ObjectURL + "files/post/" + cnv + "/" + file.Filename
+	path := ObjectURL + "files/product/" + cnv + "/" + file.Filename
 	return path, nil
 }
