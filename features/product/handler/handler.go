@@ -134,3 +134,19 @@ func (ph *productHandle) GetProductById() echo.HandlerFunc {
 		})
 	}
 }
+
+func (ph *productHandle) AllProducts() echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		res, err := ph.srv.AllProducts()
+		if err != nil {
+			log.Println("error running allproducts service")
+			return c.JSON(http.StatusInternalServerError, helper.ErrorResponse("server problem"))
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    ListAllProductsToResponse(res),
+			"message": "success show all products",
+		})
+	}
+}

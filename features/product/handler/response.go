@@ -55,3 +55,28 @@ func UpdateProductToResponse(dataCore product.Core) AddProductResponse {
 		// UserID:      dataCore.UserID,
 	}
 }
+
+//For AllProducts
+type AllProductResponse struct {
+	ID    uint   `json:"id"`
+	Name  string `json:"name"`
+	Price uint   `json:"price"`
+	Image string `json:"image"`
+}
+
+func AllProductsToResponse(dataCore product.Core) AllProductResponse {
+	return AllProductResponse{
+		ID:    dataCore.ID,
+		Name:  dataCore.Name,
+		Price: dataCore.Price,
+		Image: dataCore.Image,
+	}
+}
+func ListAllProductsToResponse(dataCore []product.Core) []AllProductResponse {
+	var DataResponse []AllProductResponse
+
+	for _, value := range dataCore {
+		DataResponse = append(DataResponse, AllProductsToResponse(value))
+	}
+	return DataResponse
+}
