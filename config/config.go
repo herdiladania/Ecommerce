@@ -1,14 +1,14 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 var (
@@ -35,10 +35,21 @@ func InitConfig() *AppConfig {
 func ReadEnv() *AppConfig {
 	app := AppConfig{}
 	isRead := true
+	if val, found := os.LookupEnv("KEYID"); found {
+		app.keyid = val
+		isRead = false
+		KEYID = val
+	}
+	if val, found := os.LookupEnv("ACCESSKEY"); found {
+		app.accesskey = val
+		isRead = false
+		ACCESSKEY = val
 
+	}
 	if val, found := os.LookupEnv("JWT_KEY"); found {
 		app.jwtKey = val
 		isRead = false
+		JWT_KEY = val
 	}
 	if val, found := os.LookupEnv("DBUSER"); found {
 		app.DBUser = val
@@ -63,25 +74,31 @@ func ReadEnv() *AppConfig {
 	}
 
 	if isRead {
-		viper.AddConfigPath(".")
-		viper.SetConfigName("local")
-		viper.SetConfigType("env")
+		err := godotenv.Load("local.env")
+		if err != nil {
+			fmt.Println("Error saat baca env", err.Error())
+			return nil
+		}
 
-		err := viper.ReadInConfig()
+		app.DBUser = os.Getenv("DBUSER")
+		app.DBPass = os.Getenv("DBPASS")
+		app.DBHost = os.Getenv("DBHOST")
+		readData := os.Getenv("DBPORT")
+		app.DBPort, err = strconv.Atoi(readData)
 		if err != nil {
-			log.Println("error read config : ", err.Error())
+			fmt.Println("Error saat convert", err.Error())
 			return nil
 		}
-		err = viper.Unmarshal(&app)
-		if err != nil {
-			log.Println("error parse config : ", err.Error())
-			return nil
-		}
+		app.DBName = os.Getenv("DBNAME")
+		app.jwtKey = os.Getenv("JWTKEY")
+		app.keyid = os.Getenv("KEYID")
+		app.accesskey = os.Getenv("ACCESSKEY")
+
+		JWT_KEY = app.jwtKey
+		KEYID = app.keyid
+		ACCESSKEY = app.accesskey
 	}
 
-	JWT_KEY = app.jwtKey
-	KEYID = app.keyid
-	ACCESSKEY = app.accesskey
 	return &app
 }
 

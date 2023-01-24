@@ -3,9 +3,11 @@ package handler
 import (
 	"e-commerce/features/user"
 	"e-commerce/helper"
-	"errors"
 	"fmt"
+	"log"
+	"mime/multipart"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -65,35 +67,36 @@ func (uc *userControll) Profile() echo.HandlerFunc {
 
 func (uc *userControll) Update() echo.HandlerFunc {
 	return func(c echo.Context) error {
+		token := c.Get("user")
+		var profilePhoto *multipart.FileHeader
 
-		ex := c.Get("user")
-
-		input := UpdateRequest{}
-		file, errPath := c.FormFile("foto")
-
-		fmt.Print("error get path handler, err = ", errPath)
-
-		if file != nil {
-			res, err := helper.UploadImage(c)
-			if err != nil {
-				fmt.Println(err)
-				return errors.New("create gambar failed cannot upload data")
-			}
-			input.Image = res
+		updatedData := RegisterRequest{}
+		if err := c.Bind(&updatedData); err != nil {
+			return c.JSON(http.StatusBadRequest, "wrong input format")
+		}
+		file, err := c.FormFile("image")
+		if file != nil && err == nil {
+			profilePhoto = file
+		} else if file != nil && err != nil {
+			log.Println("error read profile_photo")
+			return c.JSON(http.StatusBadRequest, helper.ErrorResponse("wrong image input"))
 		}
 
-		if err := c.Bind(&input); err != nil {
-			return c.JSON(http.StatusBadRequest, "format inputan salah")
-		}
-		dataCore := *ToCore(input)
-
-		res, err := uc.srv.Update(ex, dataCore)
-
+		res, err := uc.srv.Update(token, *ToCore(updatedData), profilePhoto)
 		if err != nil {
-			return c.JSON(helper.PrintErrorResponse(err.Error()))
+			if strings.Contains(err.Error(), "not found") {
+				log.Println("user not found: ", err.Error())
+				return c.JSON(http.StatusNotFound, helper.ErrorResponse("user not found"))
+			} else {
+				log.Println("error update service: ", err.Error())
+				return c.JSON(http.StatusInternalServerError, helper.ErrorResponse("server problem"))
+			}
 		}
-		dataResp := ToResponse(res)
-		return c.JSON(helper.PrintSuccessReponse(http.StatusCreated, "berhasil mengubah data", dataResp))
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"data":    ToResponse(res),
+			"message": "success update user's data",
+		})
 	}
 }
 

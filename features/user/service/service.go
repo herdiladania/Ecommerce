@@ -5,9 +5,11 @@ import (
 	helper "e-commerce/helper"
 	"errors"
 	"log"
+	"mime/multipart"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUseCase struct {
@@ -93,32 +95,45 @@ func (uuc *userUseCase) Profile(token interface{}) (user.Core, error) {
 	return res, nil
 }
 
-func (uuc *userUseCase) Update(token interface{}, updateData user.Core) (user.Core, error) {
-	if updateData.Password != "" {
-		hashed, err := helper.GeneratePassword(updateData.Password)
-		if err != nil {
-			log.Println("bcrypt error ", err.Error())
-			return user.Core{}, errors.New("password process error")
-		}
-		updateData.Password = string(hashed)
+func (uuc *userUseCase) Update(token interface{}, updatedData user.Core, profilePhoto *multipart.FileHeader) (user.Core, error) {
+	userId := helper.ExtractToken(token)
+	if userId <= 0 {
+		log.Println("extract token error")
+		return user.Core{}, errors.New("extract token error")
+	}
+	if updatedData.Password != "" {
+		hashed, _ := bcrypt.GenerateFromPassword([]byte(updatedData.Password), bcrypt.DefaultCost)
+		updatedData.Password = string(hashed)
 	}
 
-	id := helper.ExtractToken(token)
-
-	res, err := uuc.qry.Update(uint(id), updateData)
-
+	res, err := uuc.qry.Profile(uint(userId))
 	if err != nil {
-		msg := ""
+		errmsg := ""
 		if strings.Contains(err.Error(), "not found") {
-			msg = "data tidak ditemukan"
-		} else if strings.Contains(err.Error(), "not valid") {
-			msg = "format tidak sesuai"
+			errmsg = "data not found"
 		} else {
-			msg = "terdapat masalah pada server"
+			errmsg = "server problem"
 		}
-		return user.Core{}, errors.New(msg)
+		log.Println("error profile query: ", err.Error())
+		return user.Core{}, errors.New(errmsg)
 	}
 
+	if profilePhoto != nil {
+		path, _ := helper.UploadProfilePhotoS3(*profilePhoto, res.Email)
+		updatedData.Image = path
+	}
+
+	res, err = uuc.qry.Update(uint(userId), updatedData)
+	if err != nil {
+		errmsg := ""
+		if strings.Contains(err.Error(), "not found") {
+			errmsg = "data not found"
+		} else {
+			errmsg = "server problem"
+		}
+		log.Println("error update query: ", err.Error())
+		return user.Core{}, errors.New(errmsg)
+	}
 	return res, nil
 }
 
