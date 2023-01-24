@@ -6,6 +6,10 @@ import (
 	"e-commerce/features/user/handler"
 	services "e-commerce/features/user/service"
 
+	pdata "e-commerce/features/product/data"
+	phdl "e-commerce/features/product/handler"
+	psrv "e-commerce/features/product/service"
+
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -22,6 +26,10 @@ func main() {
 	userSrv := services.New(userData)
 	userHdl := handler.New(userSrv)
 
+	prodData := pdata.New(db)
+	prodSrv := psrv.New(prodData)
+	prodHdl := phdl.New(prodSrv)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.CORS())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -33,6 +41,8 @@ func main() {
 	e.GET("/users", userHdl.Profile(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.PUT("/users", userHdl.Update(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.DELETE("/users", userHdl.Delete(), middleware.JWT([]byte(config.JWT_KEY)))
+
+	e.POST("/products", prodHdl.Add(), middleware.JWT([]byte(config.JWT_KEY)))
 
 	if err := e.Start(":8000"); err != nil {
 		log.Println(err.Error())
