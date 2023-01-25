@@ -1,12 +1,11 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: E-Cpmmerce API
+  title: E-Commerce API
   description: Design API for E-Commerce APP by Group 7
 servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/Grioup7/E-Commerce_API/1.0.0
+  - description: digunakan untuk mengakses API
+    url: https://www.devmyproject.site
     
 paths:
   /login:
@@ -59,14 +58,15 @@ paths:
     post:
       tags:
         - Users
+      summary: register new user account
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/UsersSchema'
       responses:
-        '200':
-          description: register user
+        '201':
+          description: successfully register user
           content:
             application/json:
               schema:
@@ -90,7 +90,7 @@ paths:
                       
                   message:
                     type: string
-                    example: successfully registered user
+                    example: successfully register user
         '400':
           $ref: '#/components/responses/Response400'
         '500':
@@ -101,6 +101,8 @@ paths:
     get:
       tags:
         - Users
+      summary: user's profile
+      description: digunakan untuk melihat profil pengguna
       responses:
         '200':
           description: get user profile
@@ -112,18 +114,44 @@ paths:
                   data:
                     type: object
                     properties:
-                      id:
-                        type: integer
-                        example: 1
-                      name:
-                        type: string
-                        example: Jhonny
-                      email:
-                        type: string
-                        example: Jhonnygmail.com
-                      image:
-                        type: string 
-                        example : image1.jpg
+                      user:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: Jhonny
+                          email:
+                            type: string
+                            example: Jhonnygmail.com
+                          image:
+                            type: string 
+                            example : image1.jpg
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: 
+                              type: integer
+                            name: 
+                              type : string
+                            price: 
+                              type: integer
+                            qty:
+                              type: integer
+                        example:
+                          - id: 20
+                            name: Macbook Air Pro 2023
+                            price: 25000000
+                            qty: 20
+                          - id: 23
+                            name: Asus Rog Strix X
+                            price: 23000000
+                            qty: 20
+                        
                   message:
                     type: string
                     example: successfully get user profile
@@ -134,6 +162,8 @@ paths:
     put:
       tags:
         - Users
+      summary: update user's profile
+      description: digunakan untuk mengedit profil/data pengguna
       security:
         - jwt_auth: []
       
@@ -169,9 +199,6 @@ paths:
                       address:
                         type: string
                         example: Jl. Merdeka 17, Jakarta
-                      password:
-                        type: string
-                        example: qwertyuiop1223
                   message:
                     type: string
                     example: successfully updated user
@@ -182,6 +209,7 @@ paths:
     delete:
       tags:
         - Users
+      summary: delete user's account
       security:
         - jwt_auth: []
       
@@ -204,6 +232,7 @@ paths:
     post:
       tags:
         - Products
+      summary: add product
       security:
         - jwt_auth: []
       
@@ -214,7 +243,7 @@ paths:
               $ref: '#/components/schemas/ProductSchema'
                 
       responses:
-        '200':
+        '201':
           description: add new product
           content:
             application/json:
@@ -252,6 +281,8 @@ paths:
     get:
       tags:
         - Products
+      summary: show all products
+      description: digunakan untuk menampilkan semua produk, tidak perlu login
       responses:
         '200':
           description: get all products
@@ -264,13 +295,14 @@ paths:
           $ref: '#/components/responses/Response400'
         '500':
           $ref: '#/components/responses/Response500'
-  /products/{id}:
+  /products/{product_id}:
     get:
       tags:
         - Products
+      summary: show a product's detail
       parameters:
         - in: path
-          name: id
+          name: product_id
           schema:
             type: number
             example: 1
@@ -312,12 +344,13 @@ paths:
     put:
       tags:
         - Products
+      summary: update a product's data
       security:
         - jwt_auth: []
       
       parameters:
         - in: path
-          name: id
+          name: product_id
           schema:
             type: number
             example: 1
@@ -366,12 +399,13 @@ paths:
     delete:
       tags:
         - Products
+      summary: delete a product
       security:
         - jwt_auth: []
       
       parameters:
         - in: path
-          name: id
+          name: product_id
           schema:
             type: number
             example: 1
@@ -396,6 +430,7 @@ paths:
     post:
       tags:
         - Cart
+      summary: add a cart
       security:
         - jwt_auth: []
       requestBody:
@@ -404,7 +439,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CartSchema'
       responses:
-        '200':
+        '201':
           description: add product to cart add
           content:
             application/json:
@@ -430,6 +465,7 @@ paths:
     get:
       tags:
         - Cart
+      summary: show cart's detail
       security:
         - jwt_auth: []
       responses:
@@ -451,31 +487,30 @@ paths:
                   - id : 1
                     qty : 2
                     total_price : 500000
-                    product:
-                      product_id : 29
-                      product_name : asus rog
-                      product_image : product29.jpg
+                    product_id : 29
+                    product_name : asus rog
+                    product_image : product29.jpg
                   - id : 2
                     qty : 5
                     total_price : 990000
-                    product:
-                      product_id : 31
-                      product_name : tas laptop
-                      product_image : produc31.jpg
+                    product_id : 31
+                    product_name : tas laptop
+                    product_image : produc31.jpg
                 message : successfully get all cart
         '400':
           $ref: '#/components/responses/Response400'
         '500':
           $ref: '#/components/responses/Response500'
-  /cart/{id}:
+  /cart/{cart_id}:
     put:
       tags:
         - Cart
+      summary: edit a cart
       security:
         - jwt_auth: []
       parameters:
         - in: path
-          name: id
+          name: cart_id
           schema:
             type: number
             example: 1
@@ -516,11 +551,12 @@ paths:
     delete:
       tags:
         - Cart
+      summary: delete a cart
       security:
         - jwt_auth: []
       parameters:
         - in: path
-          name: id
+          name: cart_id
           schema:
             type: number
             example: 1
@@ -544,6 +580,7 @@ paths:
     post:
       tags:
         - Order
+      summary: make an order
       security:
         - jwt_auth: []
       requestBody:
@@ -552,7 +589,7 @@ paths:
             schema:
               $ref: '#/components/schemas/OrderSchema'
       responses:
-        '200':
+        '201':
           description: add order
           content:
             application/json:
@@ -578,28 +615,31 @@ paths:
     get:
       tags:
         - Order
+      summary: show order's detail
       security:
         - jwt_auth: []
       responses:
         '200':
-          description: get all cart
+          description: get all order
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfCartSchema'
+                $ref: '#/components/schemas/ArrayOfOrderSchema'
         '400':
           $ref: '#/components/responses/Response400'
         '500':
           $ref: '#/components/responses/Response500'
-  /order/{id}:
+  /order/{order_id}:
     put:
       tags:
         - Order
+      summary: edit an order
+      description: order ini statusnya cancel atau tidak
       security:
         - jwt_auth: []
       parameters:
         - in: path
-          name: id
+          name: order_id
           schema:
             type: number
             example: 1
@@ -736,11 +776,11 @@ components:
         data:
           - id : 1
             name : Asus Rog 
-            price : 15.000.000
+            price : 15000000
             image : product20.jpg
           - id : 2
             name : Lenovo X543
-            price : 15.000.000
+            price : 15000000
             image : product29.jpg
         message: successfully get all products
           
@@ -757,7 +797,7 @@ components:
         qty:
           type: number
           example: 2
-    ArrayOfCartSchema:
+    ArrayOfOrderSchema:
       type: object
       properties:
         data:
@@ -775,6 +815,7 @@ components:
               product_id : 29
               product_name : asus rog
               product_image : product29.jpg
+              status: in delivery
           - id : 2
             qty : 5
             total_price : 990000
@@ -782,6 +823,8 @@ components:
               product_id : 31
               product_name : tas laptop
               product_image : produc31.jpg
+              status: canceled
+        message: successfully get all order
             
     OrderSchema:
       type: object
@@ -795,20 +838,8 @@ components:
                 type: integer
                 example: 23
             address:
-              type: object
-              properties:
-                street:
-                  type: string
-                  example: "Jl. Merdeka 17"
-                city:
-                  type: string
-                  example: "Jakarta"
-                state:
-                  type: string
-                  example: "Indonesia"
-                zip:
-                  type: number
-                  example: 10101
+              type: string
+              example: Jl. Merdeka 17, Jakarta
             Payment:
               type: object
               properties:
