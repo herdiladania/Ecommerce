@@ -223,3 +223,76 @@ func TestUpdate(t *testing.T) {
 		repo.AssertExpectations(t)
 	})
 }
+
+func TestDelete(t *testing.T) {
+	repo := mocks.NewProductData(t)
+
+	t.Run("success delete product", func(t *testing.T) {
+		productID := uint(3)
+		userID := uint(2)
+		repo.On("Delete", productID, userID).Return(nil).Once()
+
+		srv := New(repo)
+
+		_, token := helper.GenerateJWT(2)
+
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		err := srv.Delete(pToken, productID)
+		assert.Nil(t, err)
+		repo.AssertExpectations(t)
+
+	})
+
+	t.Run("data not found", func(t *testing.T) {
+		productID := uint(3)
+		userID := uint(2)
+		repo.On("Delete", productID, userID).Return(errors.New("data not found")).Once()
+
+		srv := New(repo)
+
+		_, token := helper.GenerateJWT(2)
+
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		err := srv.Delete(pToken, productID)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "not found")
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("server problem", func(t *testing.T) {
+		productID := uint(3)
+		userID := uint(2)
+		repo.On("Delete", productID, userID).Return(errors.New("server problem")).Once()
+
+		srv := New(repo)
+
+		_, token := helper.GenerateJWT(2)
+
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		err := srv.Delete(pToken, productID)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		repo.AssertExpectations(t)
+	})
+
+	t.Run("jwt not valid", func(t *testing.T) {
+		productID := uint(3)
+
+		srv := New(repo)
+
+		_, token := helper.GenerateJWT(0)
+
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		err := srv.Delete(pToken, productID)
+		assert.NotNil(t, err)
+		repo.AssertExpectations(t)
+	})
+}
