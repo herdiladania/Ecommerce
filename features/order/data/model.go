@@ -2,6 +2,7 @@ package data
 
 import (
 	"e-commerce/features/order"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -9,14 +10,40 @@ import (
 type Order struct {
 	gorm.Model
 	UserID          uint
+	SellerID        uint
 	CartID          uint
 	Quantity        int
-	TotalPrice      int
+	TotalPrice      float64
 	Address         string
 	PaymentUrl      string
 	TransactionCode string
-	TransactionDate string
+	TransactionDate time.Time
 	Status          string
+}
+
+type userCart struct {
+	ID         uint
+	ProductID  uint
+	Quantity   int
+	TotalPrice float64
+}
+
+type userProduct struct {
+	gorm.Model
+	Name        string
+	Price       uint
+	Quantity    uint
+	Description string
+	Image       string
+	UserID      uint
+}
+
+type orderProduct struct {
+	ID         uint
+	OrderID    uint
+	ProductID  uint
+	Quantity   int
+	TotalPrice float64
 }
 
 func DataToCore(data Order) order.Core {
