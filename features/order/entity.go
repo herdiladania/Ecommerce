@@ -23,21 +23,20 @@ type Core struct {
 type OrderHandler interface {
 	Add() echo.HandlerFunc
 	OrderHistory() echo.HandlerFunc
-	// UpdateOrderStatus() echo.HandlerFunc
+	UpdateOrderStatus() echo.HandlerFunc
 	// DeleteOrder() echo.HandlerFunc
 }
 
 type OrderService interface {
 	Add(token interface{}, cartID uint, adrress string) (Core, error)
 	OrderHistory(token interface{}) ([]Core, error)
-	// UpdateOrderStatus(token interface{}, orderID uint, updatedStatus int) error
+	UpdateOrderStatus(token interface{}, orderID uint, updatedStatus string) error
 	// DeleteOrder(token interface{}, orderID uint) error
 }
 
 type OrderData interface {
 	Add(userID uint, cartID uint, adrress string) (Core, error)
 	OrderHistory(userId uint) ([]Core, error)
-	// SellingHistory(userId uint) ([]Core, error)
-	// UpdateOrderStatus(userID uint, orderID uint, updatedStatus int) error
+	UpdateOrderStatus(userID uint, orderID uint, updatedStatus string) error
 	// DeleteOrder(userID uint, orderID uint) error
 }
