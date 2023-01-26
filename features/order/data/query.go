@@ -22,7 +22,7 @@ func New(db *gorm.DB) order.OrderData {
 		db: db,
 	}
 }
-func (oq *orderQuery) Add(userID uint, totalPrice float64) (order.Core, string, error) {
+func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
 	transaksi := oq.db.Begin()
 
 	cart := []userCart{}
@@ -30,6 +30,11 @@ func (oq *orderQuery) Add(userID uint, totalPrice float64) (order.Core, string, 
 		transaksi.Rollback()
 		log.Println("error retrieve user cart: ", err.Error())
 		return order.Core{}, "", err
+	}
+
+	var totalPrice float64
+	for _, item := range cart {
+		totalPrice += item.TotalPrice
 	}
 
 	orderInput := Order{
