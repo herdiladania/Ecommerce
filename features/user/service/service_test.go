@@ -5,6 +5,7 @@ import (
 	helper "e-commerce/helper"
 	"e-commerce/mocks"
 	"errors"
+	"mime/multipart"
 	"testing"
 	"time"
 
@@ -237,6 +238,113 @@ func TestDelete(t *testing.T) {
 		err := srv.Delete(pToken)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "server")
+		data.AssertExpectations(t)
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	data := mocks.NewUserData(t)
+	updUser := user.Core{
+		Name:     "putra",
+		Email:    "putra123@gmail.com",
+		HP:       "085659171799",
+		Address:  "Mojokerto",
+		Password: "putra123",
+		Image:    "https://ecommercegroup7.s3.ap-southeast-1.amazonaws.com/files/user/putra123@gmail.com/profile-photo.jpeg",
+	}
+	expectedData := user.Core{
+		Name:     "putra",
+		Email:    "putra123@gmail.com",
+		HP:       "085659171799",
+		Address:  "Mojokerto",
+		Password: "putra123",
+		Image:    "https://ecommercegroup7.s3.ap-southeast-1.amazonaws.com/files/user/putra123@gmail.com/profile-photo.jpeg",
+	}
+	var image *multipart.FileHeader
+	t.Run("update success", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(expectedData, nil).Once()
+		data.On("Update", uint(1), mock.Anything).Return(expectedData, nil).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedData.ID, res.ID)
+		assert.Equal(t, expectedData.Name, res.Name)
+		data.AssertExpectations(t)
+	})
+
+	t.Run("jwt not valid", func(t *testing.T) {
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+
+		res, err := srv.Update(token, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "token error")
+		assert.Equal(t, uint(0), res.ID)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		data.On("Profile", uint(2)).Return(user.Core{}, errors.New("data not found")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(2)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("server problem", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(user.Core{}, errors.New("server problem")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		data.On("Profile", uint(2)).Return(expectedData, nil).Once()
+		data.On("Update", mock.Anything, mock.Anything).Return(user.Core{}, errors.New("data not found")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(2)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("server problem", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(expectedData, nil).Once()
+		data.On("Update", mock.Anything, mock.Anything).Return(user.Core{}, errors.New("server problem")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		assert.Equal(t, res.Name, "")
 		data.AssertExpectations(t)
 	})
 }
