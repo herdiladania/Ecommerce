@@ -18,14 +18,14 @@ func New(data order.OrderData) order.OrderService {
 	}
 }
 
-func (os *orderSrv) Add(token interface{}) (order.Core, error) {
+func (os *orderSrv) Add(token interface{}, cartID uint, address string) (order.Core, error) {
 	userID := helper.ExtractToken(token)
 	if userID <= 0 {
 		log.Println("user not found")
 		return order.Core{}, errors.New("user not found")
 	}
 
-	res, err := os.qry.Add(uint(userID))
+	res, err := os.qry.Add(uint(userID), cartID, address)
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
