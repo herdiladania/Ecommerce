@@ -5,6 +5,7 @@ import (
 	helper "e-commerce/helper"
 	"e-commerce/mocks"
 	"errors"
+	"mime/multipart"
 	"testing"
 	"time"
 
@@ -61,7 +62,7 @@ func TestRegister(t *testing.T) {
 
 }
 
-func TestLogn(t *testing.T) {
+func TestLogin(t *testing.T) {
 	data := mocks.NewUserData(t)
 	t.Run("succcess login", func(t *testing.T) {
 		email := "Jhonny@alta.id"
@@ -75,7 +76,7 @@ func TestLogn(t *testing.T) {
 			Password: string(hashed),
 			Address:  "Jl. Merdeka 17, Jakarta",
 		}
-		data.On("Login", email).Return(expectedData, nil)
+		data.On("Login", email).Return(expectedData, nil).Once()
 		srv := New(data)
 		token, res, err := srv.Login(email, password)
 		assert.Nil(t, err)
@@ -85,8 +86,8 @@ func TestLogn(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		inputEmail := "mfp@gmail.com"
-		data.On("Login", inputEmail).Return(user.Core{}, errors.New("data not found"))
+		inputEmail := "Jhonny@alta.id"
+		data.On("Login", inputEmail).Return(user.Core{}, errors.New("data not found")).Once()
 
 		srv := New(data)
 		token, res, err := srv.Login(inputEmail, "be1422")
@@ -99,7 +100,7 @@ func TestLogn(t *testing.T) {
 
 	t.Run("wrong password", func(t *testing.T) {
 		inputEmail := "Jhonny@alta.id"
-		hashed, _ := bcrypt.GenerateFromPassword([]byte("paupau99"), bcrypt.DefaultCost)
+		hashed, _ := bcrypt.GenerateFromPassword([]byte("Jhonny123"), bcrypt.DefaultCost)
 		expData := user.Core{
 			Email:    "Jhonny@alta.id",
 			Name:     "Jhonny",
@@ -111,7 +112,7 @@ func TestLogn(t *testing.T) {
 		srv := New(data)
 		token, res, err := srv.Login(inputEmail, "be1423")
 		assert.NotNil(t, err)
-		assert.ErrorContains(t, err, "wrong password")
+		assert.ErrorContains(t, err, "password")
 		assert.Empty(t, token)
 		assert.Equal(t, uint(0), res.ID)
 		data.AssertExpectations(t)
@@ -198,7 +199,7 @@ func TestDelete(t *testing.T) {
 
 		token.Valid = true
 
-		_, err := srv.Delete(token)
+		err := srv.Delete(token)
 		assert.Nil(t, err)
 		data.AssertExpectations(t)
 	})
@@ -208,7 +209,7 @@ func TestDelete(t *testing.T) {
 
 		_, token := helper.GenerateJWT(1)
 
-		_, err := srv.Delete(token)
+		err := srv.Delete(token)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "not found")
 	})
@@ -221,9 +222,9 @@ func TestDelete(t *testing.T) {
 		_, token := helper.GenerateJWT(4)
 		pToken := token.(*jwt.Token)
 		pToken.Valid = true
-		_, err := srv.Delete(pToken)
+		err := srv.Delete(pToken)
 		assert.NotNil(t, err)
-		assert.ErrorContains(t, err, "not found")
+		assert.ErrorContains(t, err, "tidak ditemukan")
 		data.AssertExpectations(t)
 	})
 
@@ -234,9 +235,116 @@ func TestDelete(t *testing.T) {
 		_, token := helper.GenerateJWT(1)
 		pToken := token.(*jwt.Token)
 		pToken.Valid = true
-		_, err := srv.Delete(pToken)
+		err := srv.Delete(pToken)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "server")
+		data.AssertExpectations(t)
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	data := mocks.NewUserData(t)
+	updUser := user.Core{
+		Name:     "putra",
+		Email:    "putra123@gmail.com",
+		HP:       "085659171799",
+		Address:  "Mojokerto",
+		Password: "putra123",
+		Image:    "https://ecommercegroup7.s3.ap-southeast-1.amazonaws.com/files/user/putra123@gmail.com/profile-photo.jpeg",
+	}
+	expectedData := user.Core{
+		Name:     "putra",
+		Email:    "putra123@gmail.com",
+		HP:       "085659171799",
+		Address:  "Mojokerto",
+		Password: "putra123",
+		Image:    "https://ecommercegroup7.s3.ap-southeast-1.amazonaws.com/files/user/putra123@gmail.com/profile-photo.jpeg",
+	}
+	var image *multipart.FileHeader
+	t.Run("update success", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(expectedData, nil).Once()
+		data.On("Update", uint(1), mock.Anything).Return(expectedData, nil).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedData.ID, res.ID)
+		assert.Equal(t, expectedData.Name, res.Name)
+		data.AssertExpectations(t)
+	})
+
+	t.Run("jwt not valid", func(t *testing.T) {
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+
+		res, err := srv.Update(token, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "token error")
+		assert.Equal(t, uint(0), res.ID)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		data.On("Profile", uint(2)).Return(user.Core{}, errors.New("data not found")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(2)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("server problem", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(user.Core{}, errors.New("server problem")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		data.On("Profile", uint(2)).Return(expectedData, nil).Once()
+		data.On("Update", mock.Anything, mock.Anything).Return(user.Core{}, errors.New("data not found")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(2)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.Equal(t, res.Name, "")
+		data.AssertExpectations(t)
+	})
+
+	t.Run("server problem", func(t *testing.T) {
+		data.On("Profile", uint(1)).Return(expectedData, nil).Once()
+		data.On("Update", mock.Anything, mock.Anything).Return(user.Core{}, errors.New("server problem")).Once()
+		srv := New(data)
+
+		_, token := helper.GenerateJWT(1)
+		pToken := token.(*jwt.Token)
+		pToken.Valid = true
+
+		res, err := srv.Update(pToken, updUser, image)
+		assert.NotNil(t, err)
+		assert.ErrorContains(t, err, "server")
+		assert.Equal(t, res.Name, "")
 		data.AssertExpectations(t)
 	})
 }

@@ -137,13 +137,13 @@ func (uuc *userUseCase) Update(token interface{}, updatedData user.Core, profile
 	return res, nil
 }
 
-func (uuc *userUseCase) Delete(token interface{}) (user.Core, error) {
+func (uuc *userUseCase) Delete(token interface{}) error {
 
 	id := helper.ExtractToken(token)
 	if id <= 0 {
-		return user.Core{}, errors.New("user not found")
+		return errors.New("user not found")
 	}
-	data, err := uuc.qry.Delete(uint(id))
+	err := uuc.qry.Delete(uint(id))
 	if err != nil {
 		msg := ""
 		if strings.Contains(err.Error(), "not found") {
@@ -151,8 +151,8 @@ func (uuc *userUseCase) Delete(token interface{}) (user.Core, error) {
 		} else {
 			msg = "internal server error"
 		}
-		return user.Core{}, errors.New(msg)
+		return errors.New(msg)
 	}
-	return data, nil
+	return nil
 
 }
