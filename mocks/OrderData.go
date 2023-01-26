@@ -13,106 +13,25 @@ type OrderData struct {
 	mock.Mock
 }
 
-// Add provides a mock function with given fields: userId, totalPrice
-func (_m *OrderData) Add(userId uint, totalPrice float64) (order.Core, string, error) {
-	ret := _m.Called(userId, totalPrice)
+// Add provides a mock function with given fields: userID
+func (_m *OrderData) Add(userID uint) (order.Core, error) {
+	ret := _m.Called(userID)
 
 	var r0 order.Core
-	if rf, ok := ret.Get(0).(func(uint, float64) order.Core); ok {
-		r0 = rf(userId, totalPrice)
+	if rf, ok := ret.Get(0).(func(uint) order.Core); ok {
+		r0 = rf(userID)
 	} else {
 		r0 = ret.Get(0).(order.Core)
 	}
 
-	var r1 string
-	if rf, ok := ret.Get(1).(func(uint, float64) string); ok {
-		r1 = rf(userId, totalPrice)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(uint, float64) error); ok {
-		r2 = rf(userId, totalPrice)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// DeleteOrder provides a mock function with given fields: userID, orderID
-func (_m *OrderData) DeleteOrder(userID uint, orderID uint) error {
-	ret := _m.Called(userID, orderID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, uint) error); ok {
-		r0 = rf(userID, orderID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// OrderHistory provides a mock function with given fields: userId
-func (_m *OrderData) OrderHistory(userId uint) ([]order.Core, error) {
-	ret := _m.Called(userId)
-
-	var r0 []order.Core
-	if rf, ok := ret.Get(0).(func(uint) []order.Core); ok {
-		r0 = rf(userId)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]order.Core)
-		}
-	}
-
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(userId)
+		r1 = rf(userID)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
-}
-
-// SellingHistory provides a mock function with given fields: userId
-func (_m *OrderData) SellingHistory(userId uint) ([]order.Core, error) {
-	ret := _m.Called(userId)
-
-	var r0 []order.Core
-	if rf, ok := ret.Get(0).(func(uint) []order.Core); ok {
-		r0 = rf(userId)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]order.Core)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(userId)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateOrderStatus provides a mock function with given fields: userID, orderID, updatedStatus
-func (_m *OrderData) UpdateOrderStatus(userID uint, orderID uint, updatedStatus int) error {
-	ret := _m.Called(userID, orderID, updatedStatus)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uint, uint, int) error); ok {
-		r0 = rf(userID, orderID, updatedStatus)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 type mockConstructorTestingTNewOrderData interface {

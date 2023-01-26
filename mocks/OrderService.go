@@ -13,61 +13,17 @@ type OrderService struct {
 	mock.Mock
 }
 
-// Add provides a mock function with given fields: token, totalPrice
-func (_m *OrderService) Add(token interface{}, totalPrice float64) (order.Core, string, error) {
-	ret := _m.Called(token, totalPrice)
+// Add provides a mock function with given fields: token
+func (_m *OrderService) Add(token interface{}) (order.Core, error) {
+	ret := _m.Called(token)
 
 	var r0 order.Core
-	if rf, ok := ret.Get(0).(func(interface{}, float64) order.Core); ok {
-		r0 = rf(token, totalPrice)
+	if rf, ok := ret.Get(0).(func(interface{}) order.Core); ok {
+		r0 = rf(token)
 	} else {
 		r0 = ret.Get(0).(order.Core)
 	}
 
-	var r1 string
-	if rf, ok := ret.Get(1).(func(interface{}, float64) string); ok {
-		r1 = rf(token, totalPrice)
-	} else {
-		r1 = ret.Get(1).(string)
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(interface{}, float64) error); ok {
-		r2 = rf(token, totalPrice)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// DeleteOrder provides a mock function with given fields: token, orderID
-func (_m *OrderService) DeleteOrder(token interface{}, orderID uint) error {
-	ret := _m.Called(token, orderID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(interface{}, uint) error); ok {
-		r0 = rf(token, orderID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// OrderHistory provides a mock function with given fields: token
-func (_m *OrderService) OrderHistory(token interface{}) ([]order.Core, error) {
-	ret := _m.Called(token)
-
-	var r0 []order.Core
-	if rf, ok := ret.Get(0).(func(interface{}) []order.Core); ok {
-		r0 = rf(token)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]order.Core)
-		}
-	}
-
 	var r1 error
 	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
 		r1 = rf(token)
@@ -76,43 +32,6 @@ func (_m *OrderService) OrderHistory(token interface{}) ([]order.Core, error) {
 	}
 
 	return r0, r1
-}
-
-// SellingHistory provides a mock function with given fields: token
-func (_m *OrderService) SellingHistory(token interface{}) ([]order.Core, error) {
-	ret := _m.Called(token)
-
-	var r0 []order.Core
-	if rf, ok := ret.Get(0).(func(interface{}) []order.Core); ok {
-		r0 = rf(token)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]order.Core)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
-		r1 = rf(token)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateOrderStatus provides a mock function with given fields: token, orderID, updatedStatus
-func (_m *OrderService) UpdateOrderStatus(token interface{}, orderID uint, updatedStatus int) error {
-	ret := _m.Called(token, orderID, updatedStatus)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(interface{}, uint, int) error); ok {
-		r0 = rf(token, orderID, updatedStatus)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 type mockConstructorTestingTNewOrderService interface {
