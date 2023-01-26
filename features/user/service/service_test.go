@@ -198,7 +198,7 @@ func TestDelete(t *testing.T) {
 
 		token.Valid = true
 
-		_, err := srv.Delete(token)
+		err := srv.Delete(token)
 		assert.Nil(t, err)
 		data.AssertExpectations(t)
 	})
@@ -208,7 +208,7 @@ func TestDelete(t *testing.T) {
 
 		_, token := helper.GenerateJWT(1)
 
-		_, err := srv.Delete(token)
+		err := srv.Delete(token)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "not found")
 	})
@@ -221,9 +221,9 @@ func TestDelete(t *testing.T) {
 		_, token := helper.GenerateJWT(4)
 		pToken := token.(*jwt.Token)
 		pToken.Valid = true
-		_, err := srv.Delete(pToken)
+		err := srv.Delete(pToken)
 		assert.NotNil(t, err)
-		assert.ErrorContains(t, err, "not found")
+		assert.ErrorContains(t, err, "tidak ditemukan")
 		data.AssertExpectations(t)
 	})
 
@@ -234,7 +234,7 @@ func TestDelete(t *testing.T) {
 		_, token := helper.GenerateJWT(1)
 		pToken := token.(*jwt.Token)
 		pToken.Valid = true
-		_, err := srv.Delete(pToken)
+		err := srv.Delete(pToken)
 		assert.NotNil(t, err)
 		assert.ErrorContains(t, err, "server")
 		data.AssertExpectations(t)

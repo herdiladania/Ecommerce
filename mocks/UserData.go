@@ -14,24 +14,17 @@ type UserData struct {
 }
 
 // Delete provides a mock function with given fields: id
-func (_m *UserData) Delete(id uint) (user.Core, error) {
+func (_m *UserData) Delete(id uint) error {
 	ret := _m.Called(id)
 
-	var r0 user.Core
-	if rf, ok := ret.Get(0).(func(uint) user.Core); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uint) error); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(user.Core)
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uint) error); ok {
-		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Login provides a mock function with given fields: email
