@@ -8,10 +8,6 @@ require (
 )
 
 require (
-
-
-
-
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -35,11 +31,11 @@ require (
 	github.com/aws/aws-sdk-go v1.44.185
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/copier v0.3.5
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.10.0
+	github.com/midtrans/midtrans-go v1.3.6
 	golang.org/x/crypto v0.5.0
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
