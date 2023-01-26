@@ -10,6 +10,10 @@ import (
 	phdl "e-commerce/features/product/handler"
 	psrv "e-commerce/features/product/service"
 
+	cartData "e-commerce/features/cart/data"
+	cartService "e-commerce/features/cart/service"
+	cartHandler "e-commerce/features/cart/handler"
+	
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -29,6 +33,10 @@ func main() {
 	prodData := pdata.New(db)
 	prodSrv := psrv.New(prodData)
 	prodHdl := phdl.New(prodSrv)
+	
+	cartData := cartData.New(db)
+	cartSrv := cartService.New(cartData)
+	cartHdl := cartHandler.New(&cartSrv)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.CORS())
@@ -47,6 +55,11 @@ func main() {
 	e.GET("/products/:id", prodHdl.GetProductById(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.DELETE("/products/:id", prodHdl.Delete(), middleware.JWT([]byte(config.JWT_KEY)))
 	e.GET("/products", prodHdl.AllProducts())
+
+	e.POST("/carts", cartHdl.AddCart(), middleware.JWT([]byte(config.JWT_KEY)))
+	e.GET("/carts", cartHdl.MyCart(), middleware.JWT([]byte(config.JWT_KEY)))
+	e.PUT("/carts/:id", cartHdl.UpdateCart(), middleware.JWT([]byte(config.JWT_KEY)))
+	e.DELETE("/carts/:id", cartHdl.DeleteCart(), middleware.JWT([]byte(config.JWT_KEY)))
 
 	if err := e.Start(":8000"); err != nil {
 		log.Println(err.Error())
