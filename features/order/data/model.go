@@ -51,3 +51,12 @@ func CoreToData(data order.Core) Order {
 	}
 
 }
+
+func ListOrderToCore(data []Order) []order.Core {
+	var listOrder = []order.Core{}
+	for _, order := range data {
+		listOrder = append(listOrder, DataToCore(order))
+	}
+
+	return listOrder
+}
