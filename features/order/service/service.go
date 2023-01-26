@@ -38,3 +38,25 @@ func (os *orderSrv) Add(token interface{}, cartID uint, address string) (order.C
 
 	return res, nil
 }
+
+func (os *orderSrv) OrderHistory(token interface{}) ([]order.Core, error) {
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		log.Println("error extract token")
+		return []order.Core{}, errors.New("user not found")
+	}
+
+	res, err := os.qry.OrderHistory(uint(userID))
+
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "data not found"
+		} else {
+			msg = "server problem"
+		}
+		log.Println("error order history query: ", err.Error())
+		return []order.Core{}, errors.New(msg)
+	}
+	return res, nil
+}
