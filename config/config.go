@@ -9,23 +9,28 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/joho/godotenv"
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/coreapi"
+	"github.com/midtrans/midtrans-go/snap"
 )
 
 var (
-	JWT_KEY   string = ""
-	KEYID     string = ""
-	ACCESSKEY string = ""
+	JWT_KEY           string = ""
+	KEYID             string = ""
+	ACCESSKEY         string = ""
+	MIDTRANSSERVERKEY string = ""
 )
 
 type AppConfig struct {
-	DBUser    string
-	DBPass    string
-	DBHost    string
-	DBPort    int
-	DBName    string
-	jwtKey    string
-	keyid     string
-	accesskey string
+	DBUser            string
+	DBPass            string
+	DBHost            string
+	DBPort            int
+	DBName            string
+	jwtKey            string
+	keyid             string
+	accesskey         string
+	midtransserverkey string
 }
 
 func InitConfig() *AppConfig {
@@ -35,6 +40,11 @@ func InitConfig() *AppConfig {
 func ReadEnv() *AppConfig {
 	app := AppConfig{}
 	isRead := true
+	if val, found := os.LookupEnv("MIDTRANSSERVERKEY"); found {
+		app.midtransserverkey = val
+		isRead = false
+		KEYID = val
+	}
 	if val, found := os.LookupEnv("KEYID"); found {
 		app.keyid = val
 		isRead = false
@@ -93,10 +103,12 @@ func ReadEnv() *AppConfig {
 		app.jwtKey = os.Getenv("JWTKEY")
 		app.keyid = os.Getenv("KEYID")
 		app.accesskey = os.Getenv("ACCESSKEY")
+		app.midtransserverkey = os.Getenv("MIDTRANSSERVERKEY")
 
 		JWT_KEY = app.jwtKey
 		KEYID = app.keyid
 		ACCESSKEY = app.accesskey
+		MIDTRANSSERVERKEY = app.midtransserverkey
 	}
 
 	return &app
@@ -109,4 +121,16 @@ func S3Config() *session.Session {
 	}
 	s3Session, _ := session.NewSession(s3Config)
 	return s3Session
+}
+
+func MidtransSnapClient() snap.Client {
+	s := snap.Client{}
+	s.New(MIDTRANSSERVERKEY, midtrans.Sandbox)
+	return s
+}
+
+func MidtransCoreAPIClient() coreapi.Client {
+	c := coreapi.Client{}
+	c.New(MIDTRANSSERVERKEY, midtrans.Sandbox)
+	return c
 }
