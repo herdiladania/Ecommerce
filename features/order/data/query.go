@@ -4,6 +4,7 @@ import (
 	"e-commerce/config"
 	carts "e-commerce/features/cart/data"
 	"e-commerce/features/order"
+	"errors"
 
 	"fmt"
 	"log"
@@ -92,4 +93,17 @@ func (oq *orderQuery) OrderHistory(userID uint) ([]order.Core, error) {
 
 	return ListOrderToCore(orderHistory), nil
 
+}
+
+func (oq *orderQuery) UpdateOrderStatus(userID uint, orderID uint, updatedStatus string) error {
+	record := Order{}
+
+	err := oq.db.Where("id = ?", orderID).First(&record).Error
+	if err != nil {
+		log.Println("error update satus query: ", err.Error())
+		return errors.New("order record not found")
+	}
+	record.Status = updatedStatus
+	oq.db.Save(&record)
+	return nil
 }

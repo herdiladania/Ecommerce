@@ -60,3 +60,22 @@ func (os *orderSrv) OrderHistory(token interface{}) ([]order.Core, error) {
 	}
 	return res, nil
 }
+
+func (os *orderSrv) UpdateOrderStatus(token interface{}, orderID uint, updatedStatus string) error {
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		return errors.New("user not found")
+	}
+
+	err := os.qry.UpdateOrderStatus(uint(userID), orderID, updatedStatus)
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "order data not found"
+		} else {
+			msg = "server problem"
+		}
+		return errors.New(msg)
+	}
+	return nil
+}
