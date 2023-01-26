@@ -2,6 +2,7 @@ package data
 
 import (
 	"e-commerce/config"
+	carts "e-commerce/features/cart/data"
 	"e-commerce/features/order"
 
 	"fmt"
@@ -22,19 +23,21 @@ func New(db *gorm.DB) order.OrderData {
 		db: db,
 	}
 }
-func (oq *orderQuery) Add(userID uint) (order.Core, error) {
-	transaksi := oq.db.Begin()
+func (oq *orderQuery) Add(userID uint, cartID uint, address string) (order.Core, error) {
+	oq.db.Begin()
 
-	cart := []userCart{}
-	if err := transaksi.Where("user_id = ?", userID).Find(&cart).Error; err != nil {
-		transaksi.Rollback()
+	cart := []carts.CartHasProduct{}
+	if err := oq.db.Where("cart_id=?", cartID).Find(&cart).Error; err != nil {
+		oq.db.Rollback()
 		log.Println("error retrieve user cart: ", err.Error())
 		return order.Core{}, err
 	}
 
 	var totalPrice float64
+	var quantity int
 	for _, item := range cart {
-		totalPrice += item.TotalPrice
+		totalPrice += float64(item.TotalPrice)
+		quantity += item.Quantity
 	}
 
 	orderInput := Order{
@@ -42,43 +45,15 @@ func (oq *orderQuery) Add(userID uint) (order.Core, error) {
 		Status:          "Waiting For Payment",
 		TransactionDate: time.Now(),
 		TotalPrice:      totalPrice,
+		Address:         address,
+		Quantity:        quantity,
 	}
 
-	product := userProduct{}
-	transaksi.First(&product, cart[0].ProductID)
+	product := carts.Cart{}
+	oq.db.First(&product, cart[0].ProductID)
 	orderInput.SellerID = product.UserID
 
-	if err := transaksi.Create(&orderInput).Error; err != nil {
-		transaksi.Rollback()
-		log.Println("error add order query: ", err.Error())
-		return order.Core{}, err
-	}
-
-	orderInput.TransactionCode = "Transaction-" + fmt.Sprint(orderInput.ID)
-	transaksi.Save(&orderInput)
-
-	listProducts := []orderProduct{}
-	for _, item := range cart {
-		orderProduct := orderProduct{
-			OrderID:    orderInput.ID,
-			ProductID:  item.ProductID,
-			Quantity:   item.Quantity,
-			TotalPrice: item.TotalPrice,
-		}
-		listProducts = append(listProducts, orderProduct)
-	}
-	if err := transaksi.Create(&listProducts).Error; err != nil {
-		transaksi.Rollback()
-		log.Println("error create orderproduct: ", err.Error())
-		return order.Core{}, err
-	}
-
-	if err := transaksi.Where("user_id = ?", userID).Delete(userCart{}).Error; err != nil {
-		transaksi.Rollback()
-		log.Println("error delete user cart: ", err.Error())
-		return order.Core{}, err
-	}
-
+	orderInput.TransactionCode = "Transaction-" + fmt.Sprint(orderInput.SellerID)
 	s := config.MidtransSnapClient()
 	req := &snap.Request{
 		TransactionDetails: midtrans.TransactionDetails{
@@ -88,7 +63,20 @@ func (oq *orderQuery) Add(userID uint) (order.Core, error) {
 	}
 	snapResp, _ := s.CreateTransaction(req)
 	orderInput.PaymentUrl = snapResp.RedirectURL
-	transaksi.Commit()
+	if err := oq.db.Create(&orderInput).Error; err != nil {
+		oq.db.Rollback()
+		log.Println("error add order query: ", err.Error())
+		return order.Core{}, err
+	}
+
+	if err := oq.db.Where("cart_id", cartID).Delete(carts.CartHasProduct{}, carts.Cart{}).Error; err != nil {
+		oq.db.Rollback()
+		log.Println("error delete  cart: ", err.Error())
+		return order.Core{}, err
+	}
+
+	oq.db.Save(&orderInput)
+	oq.db.Commit()
 
 	return DataToCore(orderInput), nil
 }
