@@ -1,0 +1,40 @@
+package service
+
+import (
+	"e-commerce/features/order"
+	"e-commerce/helper"
+	"errors"
+	"log"
+	"strings"
+)
+
+type orderSrv struct {
+	qry order.OrderData
+}
+
+func New(data order.OrderData) order.OrderService {
+	return &orderSrv{
+		qry: data,
+	}
+}
+
+func (os *orderSrv) Add(token interface{}, totalPrice float64) (order.Core, string, error) {
+	userID := helper.ExtractToken(token)
+	if userID <= 0 {
+		log.Println("user not found")
+		return order.Core{}, "", errors.New("user not found")
+	}
+
+	res, redirectURL, err := os.qry.Add(uint(userID), totalPrice)
+	if err != nil {
+		msg := ""
+		if strings.Contains(err.Error(), "not found") {
+			msg = "order not found"
+		} else {
+			msg = "server problem"
+		}
+		return order.Core{}, "order gagal", errors.New(msg)
+	}
+
+	return res, redirectURL, nil
+}
