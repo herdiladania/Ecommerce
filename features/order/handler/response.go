@@ -31,3 +31,11 @@ func ToResponse(data order.Core) OrderResponse {
 	}
 
 }
+
+func OrderHistoryResponse(data []order.Core) []OrderResponse {
+	var listOrder = []OrderResponse{}
+	for _, order := range data {
+		listOrder = append(listOrder, ToResponse(order))
+	}
+	return listOrder
+}

@@ -80,3 +80,16 @@ func (oq *orderQuery) Add(userID uint, cartID uint, address string) (order.Core,
 
 	return DataToCore(orderInput), nil
 }
+
+func (oq *orderQuery) OrderHistory(userID uint) ([]order.Core, error) {
+	orderHistory := []Order{}
+
+	err := oq.db.Where("user_id = ?", userID).Find(&orderHistory).Error
+	if err != nil {
+		log.Println("order history query error", err.Error())
+		return []order.Core{}, err
+	}
+
+	return ListOrderToCore(orderHistory), nil
+
+}
