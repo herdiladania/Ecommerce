@@ -20,8 +20,11 @@ func New(os order.OrderService) order.OrderHandler {
 }
 func (oh *OrderHandle) Add() echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		res, err := oh.srv.Add(c.Get("user"))
+		input := OrderRequest{}
+		if err := c.Bind(&input); err != nil {
+			return c.JSON(http.StatusBadRequest, "format inputan salah")
+		}
+		res, err := oh.srv.Add(c.Get("user"), input.CartID, input.Address)
 		if err != nil {
 			log.Println("error running add product service")
 			return c.JSON(http.StatusInternalServerError, helper.ErrorResponse("server problem"))
