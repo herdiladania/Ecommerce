@@ -29,7 +29,7 @@ type UserService interface {
 	Register(newUser Core) (Core, error)
 	Profile(token interface{}) (Core, error)
 	Update(token interface{}, updateData Core, profilePhoto *multipart.FileHeader) (Core, error)
-	Delete(token interface{}) (Core, error)
+	Delete(token interface{}) error
 }
 
 type UserData interface {
@@ -37,5 +37,5 @@ type UserData interface {
 	Register(newUser Core) (Core, error)
 	Profile(id uint) (Core, error)
 	Update(id uint, updateData Core) (Core, error)
-	Delete(id uint) (Core, error)
+	Delete(id uint) error
 }

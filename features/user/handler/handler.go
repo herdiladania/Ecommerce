@@ -103,12 +103,11 @@ func (uc *userControll) Update() echo.HandlerFunc {
 func (uc *userControll) Delete() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		tx := c.Get("user")
-		res, err := uc.srv.Delete(tx)
+		err := uc.srv.Delete(tx)
 
 		if err != nil {
 			return c.JSON(helper.PrintErrorResponse(err.Error()))
 		}
-		result := ToResponse(res)
-		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "berhasil hapus", result))
+		return c.JSON(helper.PrintSuccessReponse(http.StatusOK, "berhasil hapus"))
 	}
 }
