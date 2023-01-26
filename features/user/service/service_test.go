@@ -61,7 +61,7 @@ func TestRegister(t *testing.T) {
 
 }
 
-func TestLogn(t *testing.T) {
+func TestLogin(t *testing.T) {
 	data := mocks.NewUserData(t)
 	t.Run("succcess login", func(t *testing.T) {
 		email := "Jhonny@alta.id"
@@ -75,7 +75,7 @@ func TestLogn(t *testing.T) {
 			Password: string(hashed),
 			Address:  "Jl. Merdeka 17, Jakarta",
 		}
-		data.On("Login", email).Return(expectedData, nil)
+		data.On("Login", email).Return(expectedData, nil).Once()
 		srv := New(data)
 		token, res, err := srv.Login(email, password)
 		assert.Nil(t, err)
@@ -85,8 +85,8 @@ func TestLogn(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		inputEmail := "mfp@gmail.com"
-		data.On("Login", inputEmail).Return(user.Core{}, errors.New("data not found"))
+		inputEmail := "Jhonny@alta.id"
+		data.On("Login", inputEmail).Return(user.Core{}, errors.New("data not found")).Once()
 
 		srv := New(data)
 		token, res, err := srv.Login(inputEmail, "be1422")
@@ -99,7 +99,7 @@ func TestLogn(t *testing.T) {
 
 	t.Run("wrong password", func(t *testing.T) {
 		inputEmail := "Jhonny@alta.id"
-		hashed, _ := bcrypt.GenerateFromPassword([]byte("paupau99"), bcrypt.DefaultCost)
+		hashed, _ := bcrypt.GenerateFromPassword([]byte("Jhonny123"), bcrypt.DefaultCost)
 		expData := user.Core{
 			Email:    "Jhonny@alta.id",
 			Name:     "Jhonny",
@@ -111,7 +111,7 @@ func TestLogn(t *testing.T) {
 		srv := New(data)
 		token, res, err := srv.Login(inputEmail, "be1423")
 		assert.NotNil(t, err)
-		assert.ErrorContains(t, err, "wrong password")
+		assert.ErrorContains(t, err, "password")
 		assert.Empty(t, token)
 		assert.Equal(t, uint(0), res.ID)
 		data.AssertExpectations(t)
