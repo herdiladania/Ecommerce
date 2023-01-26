@@ -5,14 +5,14 @@ import "github.com/labstack/echo"
 type Core struct {
 	ID              uint
 	UserID          uint
-	ProductID       uint
-	ProductName     string
+	CartID          uint
+	Address         string
 	Quantity        int
 	TotalPrice      int
 	PaymentUrl      string
 	TransactionCode string
 	TransactionDate string
-	Status          int
+	Status          string
 }
 
 type OrderHandler interface {
