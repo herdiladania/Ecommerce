@@ -21,31 +21,6 @@ type Order struct {
 	Status          string
 }
 
-type userCart struct {
-	ID         uint
-	ProductID  uint
-	Quantity   int
-	TotalPrice float64
-}
-
-type userProduct struct {
-	gorm.Model
-	Name        string
-	Price       uint
-	Quantity    uint
-	Description string
-	Image       string
-	UserID      uint
-}
-
-type orderProduct struct {
-	ID         uint
-	OrderID    uint
-	ProductID  uint
-	Quantity   int
-	TotalPrice float64
-}
-
 func DataToCore(data Order) order.Core {
 	return order.Core{
 		ID:              data.ID,
@@ -75,4 +50,13 @@ func CoreToData(data order.Core) Order {
 		Status:          data.Status,
 	}
 
+}
+
+func ListOrderToCore(data []Order) []order.Core {
+	var listOrder = []order.Core{}
+	for _, order := range data {
+		listOrder = append(listOrder, DataToCore(order))
+	}
+
+	return listOrder
 }

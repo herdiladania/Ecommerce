@@ -41,7 +41,7 @@ func PrintErrorResponse(msg string) (int, interface{}) {
 
 func ErrorResponse(msg string) interface{} {
 	resp := map[string]interface{}{}
-	resp["meesage"] = msg
+	resp["message"] = msg
 
 	return resp
 }

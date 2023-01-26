@@ -40,10 +40,11 @@ func InitConfig() *AppConfig {
 func ReadEnv() *AppConfig {
 	app := AppConfig{}
 	isRead := true
+
 	if val, found := os.LookupEnv("MIDTRANSSERVERKEY"); found {
 		app.midtransserverkey = val
 		isRead = false
-		KEYID = val
+		MIDTRANSSERVERKEY = val
 	}
 	if val, found := os.LookupEnv("KEYID"); found {
 		app.keyid = val
