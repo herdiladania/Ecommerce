@@ -87,7 +87,7 @@ func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
 		},
 	}
 	snapResp, _ := s.CreateTransaction(req)
-
+	orderInput.PaymentUrl = snapResp.RedirectURL
 	transaksi.Commit()
 
 	return DataToCore(orderInput), snapResp.RedirectURL, nil
