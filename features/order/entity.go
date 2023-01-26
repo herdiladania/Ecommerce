@@ -29,7 +29,7 @@ type OrderHandler interface {
 }
 
 type OrderService interface {
-	Add(token interface{}) (Core, string, error)
+	Add(token interface{}) (Core, error)
 	// OrderHistory(token interface{}) ([]Core, error)
 	// SellingHistory(token interface{}) ([]Core, error)
 	// UpdateOrderStatus(token interface{}, orderID uint, updatedStatus int) error
@@ -37,7 +37,7 @@ type OrderService interface {
 }
 
 type OrderData interface {
-	Add(userID uint) (Core, string, error)
+	Add(userID uint) (Core, error)
 	// OrderHistory(userId uint) ([]Core, error)
 	// SellingHistory(userId uint) ([]Core, error)
 	// UpdateOrderStatus(userID uint, orderID uint, updatedStatus int) error
