@@ -22,14 +22,14 @@ func New(db *gorm.DB) order.OrderData {
 		db: db,
 	}
 }
-func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
+func (oq *orderQuery) Add(userID uint) (order.Core, error) {
 	transaksi := oq.db.Begin()
 
 	cart := []userCart{}
 	if err := transaksi.Where("user_id = ?", userID).Find(&cart).Error; err != nil {
 		transaksi.Rollback()
 		log.Println("error retrieve user cart: ", err.Error())
-		return order.Core{}, "", err
+		return order.Core{}, err
 	}
 
 	var totalPrice float64
@@ -51,7 +51,7 @@ func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
 	if err := transaksi.Create(&orderInput).Error; err != nil {
 		transaksi.Rollback()
 		log.Println("error add order query: ", err.Error())
-		return order.Core{}, "", err
+		return order.Core{}, err
 	}
 
 	orderInput.TransactionCode = "Transaction-" + fmt.Sprint(orderInput.ID)
@@ -70,13 +70,13 @@ func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
 	if err := transaksi.Create(&listProducts).Error; err != nil {
 		transaksi.Rollback()
 		log.Println("error create orderproduct: ", err.Error())
-		return order.Core{}, "", err
+		return order.Core{}, err
 	}
 
 	if err := transaksi.Where("user_id = ?", userID).Delete(userCart{}).Error; err != nil {
 		transaksi.Rollback()
 		log.Println("error delete user cart: ", err.Error())
-		return order.Core{}, "", err
+		return order.Core{}, err
 	}
 
 	s := config.MidtransSnapClient()
@@ -90,5 +90,5 @@ func (oq *orderQuery) Add(userID uint) (order.Core, string, error) {
 	orderInput.PaymentUrl = snapResp.RedirectURL
 	transaksi.Commit()
 
-	return DataToCore(orderInput), snapResp.RedirectURL, nil
+	return DataToCore(orderInput), nil
 }
