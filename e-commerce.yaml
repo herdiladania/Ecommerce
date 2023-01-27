@@ -4,7 +4,10 @@ info:
   title: E-Commerce API
   description: Design API for E-Commerce APP by Group 7
 servers:
-  - description: digunakan untuk mengakses API
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/Grioup7/E-Commerce_API/1.0.0
+  - description: used to access e-commerce API
     url: https://www.devmyproject.site
     
 paths:
@@ -12,6 +15,8 @@ paths:
     post:
       tags:
         - Authentication
+      description: used to login
+      summary: login user
       requestBody:
         content:
           application/json:
@@ -58,7 +63,8 @@ paths:
     post:
       tags:
         - Users
-      summary: register new user account
+      description: used to register user
+      summary: register user
       requestBody:
         content:
           application/json:
@@ -66,7 +72,7 @@ paths:
               $ref: '#/components/schemas/UsersSchema'
       responses:
         '201':
-          description: successfully register user
+          description: register user
           content:
             application/json:
               schema:
@@ -90,7 +96,7 @@ paths:
                       
                   message:
                     type: string
-                    example: successfully register user
+                    example: successfully registered user
         '400':
           $ref: '#/components/responses/Response400'
         '500':
@@ -101,8 +107,8 @@ paths:
     get:
       tags:
         - Users
-      summary: user's profile
-      description: digunakan untuk melihat profil pengguna
+      description: used to get user profile
+      summary: user profile
       responses:
         '200':
           description: get user profile
@@ -162,8 +168,8 @@ paths:
     put:
       tags:
         - Users
-      summary: update user's profile
-      description: digunakan untuk mengedit profil/data pengguna
+      description: used to update user
+      summary: update user
       security:
         - jwt_auth: []
       
@@ -175,7 +181,7 @@ paths:
       responses:
       
         '200':
-          description: register user
+          description: update user
           content:
             application/json:
               schema:
@@ -209,9 +215,10 @@ paths:
     delete:
       tags:
         - Users
-      summary: delete user's account
       security:
         - jwt_auth: []
+      description: used to delete user
+      summary: delete user
       
       responses:
         '200':
@@ -232,9 +239,10 @@ paths:
     post:
       tags:
         - Products
-      summary: add product
       security:
         - jwt_auth: []
+      description: used to add product
+      summary: add product
       
       requestBody:
         content:
@@ -281,8 +289,8 @@ paths:
     get:
       tags:
         - Products
-      summary: show all products
-      description: digunakan untuk menampilkan semua produk, tidak perlu login
+      description: used to get all product
+      summary: get all product
       responses:
         '200':
           description: get all products
@@ -299,7 +307,8 @@ paths:
     get:
       tags:
         - Products
-      summary: show a product's detail
+      description: used to get product description
+      summary: product description
       parameters:
         - in: path
           name: product_id
@@ -344,9 +353,10 @@ paths:
     put:
       tags:
         - Products
-      summary: update a product's data
       security:
         - jwt_auth: []
+      description: used to update product
+      summary: update product
       
       parameters:
         - in: path
@@ -399,10 +409,10 @@ paths:
     delete:
       tags:
         - Products
-      summary: delete a product
       security:
         - jwt_auth: []
-      
+      description: used to delete product
+      summary: delete product
       parameters:
         - in: path
           name: product_id
@@ -430,9 +440,10 @@ paths:
     post:
       tags:
         - Cart
-      summary: add a cart
       security:
         - jwt_auth: []
+      description: used to add cart
+      summary: add product to cart
       requestBody:
         content:
           application/json:
@@ -440,7 +451,7 @@ paths:
               $ref: '#/components/schemas/CartSchema'
       responses:
         '201':
-          description: add product to cart add
+          description: add product to cart 
           content:
             application/json:
               schema:
@@ -449,6 +460,9 @@ paths:
                   data:
                     type: object
                     properties:
+                      user_id:
+                        type: integer
+                        example: 1
                       product_id : 
                         type: integer
                         example: 1
@@ -465,9 +479,10 @@ paths:
     get:
       tags:
         - Cart
-      summary: show cart's detail
       security:
         - jwt_auth: []
+      description: used to get cart
+      summary: get user cart
       responses:
         '200':
           description: get all cart
@@ -487,12 +502,14 @@ paths:
                   - id : 1
                     qty : 2
                     total_price : 500000
+                    user_id: 1
                     product_id : 29
                     product_name : asus rog
                     product_image : product29.jpg
                   - id : 2
                     qty : 5
                     total_price : 990000
+                    user_id: 1
                     product_id : 31
                     product_name : tas laptop
                     product_image : produc31.jpg
@@ -505,9 +522,10 @@ paths:
     put:
       tags:
         - Cart
-      summary: edit a cart
       security:
         - jwt_auth: []
+      description: used to update cart
+      summary: update cart
       parameters:
         - in: path
           name: cart_id
@@ -535,6 +553,9 @@ paths:
                   data:
                     type: object
                     properties:
+                      user_id:
+                        type: integer
+                        example: 1
                       product_id : 
                         type: integer
                         example: 1
@@ -551,9 +572,10 @@ paths:
     delete:
       tags:
         - Cart
-      summary: delete a cart
       security:
         - jwt_auth: []
+      description: used to delete cart
+      summary: delete cart
       parameters:
         - in: path
           name: cart_id
@@ -563,7 +585,7 @@ paths:
           required: true
       responses:
         '200':
-          description: delet cart
+          description: delete cart
           content:
             application/json:
               schema:
@@ -580,9 +602,10 @@ paths:
     post:
       tags:
         - Order
-      summary: make an order
       security:
         - jwt_auth: []
+      description: used to add order
+      summary: add order
       requestBody:
         content:
           application/json:
@@ -599,15 +622,36 @@ paths:
                   data:
                     type: object
                     properties:
-                      product_id : 
+                      id: 
                         type: integer
                         example: 1
+                      user_id: 
+                        type: integer
+                        example: 1
+                      adress: 
+                        type: string
+                        example: "Jakarta"
                       qty: 
                         type: integer
                         example: 2
+                      total_price: 
+                        type: integer
+                        example: 20000
+                      payment_url: 
+                        type: string
+                        example: "https://app.sandbox.midtrans.com/snap/v3/redirection/269bc1f7-da56-4154-8f82-81f5acb187ee"
+                      transaction_code: 
+                        type: string
+                        example: "Transaksi - 1"
+                      transaction_date: 
+                        type: string
+                        example: "2023-01-27T06:45:08.5460342+07:00"
+                      status: 
+                        type: string
+                        example: canceled
                   message:
                     type: string
-                    example: successfully add order
+                    example: order payment created
         '400':
           $ref: '#/components/responses/Response400'
         '500':
@@ -615,9 +659,10 @@ paths:
     get:
       tags:
         - Order
-      summary: show order's detail
       security:
         - jwt_auth: []
+      description: used to get user order
+      summary: get user order
       responses:
         '200':
           description: get all order
@@ -633,10 +678,10 @@ paths:
     put:
       tags:
         - Order
-      summary: edit an order
-      description: order ini statusnya cancel atau tidak
       security:
         - jwt_auth: []
+      description: used to update order
+      summary: update order
       parameters:
         - in: path
           name: order_id
@@ -808,23 +853,26 @@ components:
           type: string
       example:
         data:
-          - id : 1
+          - id: 1
+            user_id: 1
+            address : Jakarta
             qty : 2
-            total_price : 500000
-            product:
-              product_id : 29
-              product_name : asus rog
-              product_image : product29.jpg
-              status: in delivery
-          - id : 2
-            qty : 5
-            total_price : 990000
-            product:
-              product_id : 31
-              product_name : tas laptop
-              product_image : produc31.jpg
-              status: canceled
-        message: successfully get all order
+            total_price : 20000
+            payment_url : https://app.sandbox.midtrans.com/snap/v3/redirection/269bc1f7-da56-4154-8f82-
+            transaction_code: Transaksi - 1
+            transaction_date: "023-01-27T06:45:08.5460342+07:00" 
+            status: canceled
+            
+                        
+          - id: 1
+            user_id: 1
+            address : Jakarta
+            qty : 2
+            total_price : 20000
+            payment_url : https://app.sandbox.midtrans.com/snap/v3/redirection/269bc1f7-da56-4154-8f82-
+            transaction_code: Transaksi - 1
+            transaction_date: "023-01-27T06:45:08.5460342+07:00" 
+            status: Waiting Payment
             
     OrderSchema:
       type: object
@@ -840,15 +888,3 @@ components:
             address:
               type: string
               example: Jl. Merdeka 17, Jakarta
-            Payment:
-              type: object
-              properties:
-                type:
-                  type: string
-                  example: "BRI"
-                name:
-                  type: string
-                  example: "Jhonny"
-                number:
-                  type: string
-                  example: "1000-1000-1000-1000"
